@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import random
 from . import sudoku_logic
-from .sudoku.constants import DIFFICULTY_RANGES
+from .sudoku.constants import DIFFICULTY_RANGES, SIZE
 
 app = Flask(__name__)
 
@@ -42,8 +42,8 @@ def check_solution():
     if solution is None:
         return jsonify({'error': 'No game in progress'}), 400
     incorrect = []
-    for i in range(sudoku_logic.SIZE):
-        for j in range(sudoku_logic.SIZE):
+    for i in range(SIZE):
+        for j in range(SIZE):
             if board[i][j] != solution[i][j]:
                 incorrect.append([i, j])
     return jsonify({'incorrect': incorrect})
