@@ -48,12 +48,37 @@ def _find_empty_with_fewest_candidates(board):
     return best[0], best[1], best_cands
 
 
+def _has_initial_conflict(board):
+    """Return True if any non-zero number is duplicated in its row, column, or box."""
+    for row in range(SIZE):
+        for col in range(SIZE):
+            value = board[row][col]
+            if value == EMPTY:
+                continue
+            for other_col in range(SIZE):
+                if other_col != col and board[row][other_col] == value:
+                    return True
+            for other_row in range(SIZE):
+                if other_row != row and board[other_row][col] == value:
+                    return True
+            start_row = row - row % 3
+            start_col = col - col % 3
+            for r in range(start_row, start_row + 3):
+                for c in range(start_col, start_col + 3):
+                    if (r != row or c != col) and board[r][c] == value:
+                        return True
+    return False
+
+
 def count_solutions(board, limit=2):
     """Count solutions for the given board, but stop and return as soon as count >= limit.
 
     This mutates the board during search but restores values on backtrack.
     Returns an integer count (1 if exactly one solution, >=2 if multiple found and limit>=2).
     """
+    if _has_initial_conflict(board):
+        return 0
+
     def _search(count):
         if count >= limit:
             return count
