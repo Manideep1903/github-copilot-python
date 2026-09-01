@@ -1,5 +1,7 @@
 from flask import Flask, render_template, jsonify, request
-import sudoku_logic
+import random
+from . import sudoku_logic
+from .sudoku.constants import DIFFICULTY_RANGES
 
 app = Flask(__name__)
 
@@ -15,7 +17,18 @@ def index():
 
 @app.route('/new')
 def new_game():
-    clues = int(request.args.get('clues', 35))
+    # Support either explicit clues or a difficulty level (easy/medium/hard)
+    difficulty = request.args.get('difficulty')
+    if difficulty:
+        difficulty = difficulty.lower()
+        rng = DIFFICULTY_RANGES.get(difficulty)
+        if rng:
+            clues = random.randint(rng[0], rng[1])
+        else:
+            clues = int(request.args.get('clues', 35))
+    else:
+        clues = int(request.args.get('clues', 35))
+
     puzzle, solution = sudoku_logic.generate_puzzle(clues)
     CURRENT['puzzle'] = puzzle
     CURRENT['solution'] = solution
