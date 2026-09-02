@@ -2,12 +2,19 @@
 <html lang="en">
 
 <head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
 
   <title>Sudoku Game</title>
 
-  <link rel="stylesheet" href="/static/styles.css">
+  <link
+    rel="stylesheet"
+    href="/static/styles.css">
+
 </head>
 
 
@@ -15,18 +22,21 @@
 
   <main class="container">
 
-    <!-- =========================
-         Header
-         ========================= -->
+
+    <!-- Header -->
 
     <header class="page-header">
 
       <div>
-        <h1>Sudoku Game</h1>
+
+        <h1>
+          Sudoku Game
+        </h1>
 
         <p class="subtitle">
           Challenge yourself and solve the puzzle!
         </p>
+
       </div>
 
 
@@ -44,9 +54,7 @@
 
 
 
-    <!-- =========================
-         Game Information
-         ========================= -->
+    <!-- Game information -->
 
     <section
       class="game-info"
@@ -67,7 +75,9 @@
             Easy
           </option>
 
-          <option value="medium" selected>
+          <option
+            value="medium"
+            selected>
             Medium
           </option>
 
@@ -80,7 +90,6 @@
       </div>
 
 
-
       <div class="timer-box">
 
         ⏱️ Time:
@@ -90,7 +99,6 @@
         </strong>
 
       </div>
-
 
 
       <div class="hints-box">
@@ -107,9 +115,7 @@
 
 
 
-    <!-- =========================
-         Sudoku Board
-         ========================= -->
+    <!-- Sudoku board -->
 
     <section
       aria-label="Sudoku puzzle">
@@ -125,9 +131,7 @@
 
 
 
-    <!-- =========================
-         Controls
-         ========================= -->
+    <!-- Controls -->
 
     <div class="controls">
 
@@ -164,9 +168,7 @@
 
 
 
-    <!-- =========================
-         Message
-         ========================= -->
+    <!-- Accessible live status -->
 
     <div
       id="message"
@@ -178,21 +180,15 @@
 
 
 
-    <!-- =========================
-         Leaderboard
-         ========================= -->
+    <!-- Leaderboard -->
 
     <section
       class="leaderboard"
       aria-labelledby="leaderboard-title">
 
-
       <h2 id="leaderboard-title">
-
         🏆 Top 10 Fastest Times
-
       </h2>
-
 
 
       <div class="table-wrapper">
@@ -228,14 +224,14 @@
           </thead>
 
 
-          <tbody id="leaderboard-body">
+          <tbody
+            id="leaderboard-body">
 
           </tbody>
 
         </table>
 
       </div>
-
 
 
       <p id="empty-leaderboard">
@@ -248,7 +244,6 @@
     </section>
 
   </main>
-
 
 
   <script src="/static/main.js"></script>

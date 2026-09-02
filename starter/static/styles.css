@@ -1,9 +1,10 @@
-/* =========================
-   Global
-   ========================= */
-
 * {
   box-sizing: border-box;
+}
+
+
+html {
+  font-size: 16px;
 }
 
 
@@ -66,13 +67,11 @@ h1 {
   margin-top: 6px;
 
   color: #666;
-
-  font-size: 1rem;
 }
 
 
 /* =========================
-   Game Information
+   Game information
    ========================= */
 
 .game-info {
@@ -104,7 +103,9 @@ h1 {
 
 
 .game-info select {
-  padding: 8px 12px;
+  padding:
+    8px
+    12px;
 
   font-size: 16px;
 
@@ -116,18 +117,11 @@ h1 {
   background: white;
 
   color: #222;
-
-  cursor: pointer;
-}
-
-
-.timer-box {
-  font-size: 18px;
 }
 
 
 /* =========================
-   Sudoku Board
+   Sudoku board
    ========================= */
 
 #sudoku-board {
@@ -159,28 +153,22 @@ h1 {
   border:
     1px solid #aaa;
 
+  padding: 0;
+
+  border-radius: 0;
+
   text-align: center;
 
   font-size:
     clamp(16px, 4vw, 28px);
 
-  font-weight: normal;
-
   color: #222;
 
-  padding: 0;
-
-  border-radius: 0;
-
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  background: white;
 }
 
 
-/* =========================
-   Alternating 3x3 Boxes
-   ========================= */
+/* Alternating 3x3 squares */
 
 .box-light {
   background: #eef4ff;
@@ -192,19 +180,13 @@ h1 {
 }
 
 
-/* =========================
-   Sudoku Thick Borders
-   ========================= */
-
-/* Right border after columns 3 and 6 */
+/* Thick 3x3 borders */
 
 .sudoku-cell:nth-child(3n) {
   border-right:
     3px solid #333;
 }
 
-
-/* Bottom border after rows 3 and 6 */
 
 .sudoku-cell:nth-child(n+19):nth-child(-n+27),
 .sudoku-cell:nth-child(n+46):nth-child(-n+54) {
@@ -213,16 +195,7 @@ h1 {
 }
 
 
-/* Remove unnecessary outer borders */
-
-.sudoku-cell:nth-child(-n+9) {
-  border-top: 0;
-}
-
-
-/* =========================
-   Prefilled Cells
-   ========================= */
+/* Prefilled */
 
 .prefilled {
   font-weight: bold;
@@ -231,13 +204,11 @@ h1 {
 
   color: #111;
 
-  cursor: default;
+  cursor: not-allowed;
 }
 
 
-/* =========================
-   Hint Cells
-   ========================= */
+/* Hint */
 
 .hinted {
   background: #d9f7df !important;
@@ -250,9 +221,7 @@ h1 {
 }
 
 
-/* =========================
-   Incorrect Cells
-   ========================= */
+/* Incorrect */
 
 .incorrect {
   background: #ffd6d6 !important;
@@ -264,14 +233,29 @@ h1 {
 }
 
 
-/* =========================
-   Cell Hover
-   ========================= */
+/* Focus */
 
-.sudoku-cell:not(:disabled):hover {
-  filter: brightness(0.96);
+.sudoku-cell:focus {
+  outline:
+    3px solid #4d90fe;
 
-  cursor: text;
+  outline-offset:
+    -3px;
+
+  position: relative;
+
+  z-index: 2;
+}
+
+
+button:focus,
+select:focus,
+input:focus {
+  outline:
+    3px solid #4d90fe;
+
+  outline-offset:
+    2px;
 }
 
 
@@ -306,37 +290,8 @@ button {
   font-weight: 600;
 
   cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.1s ease;
 }
 
-
-button:hover {
-  transform:
-    translateY(-1px);
-}
-
-
-button:active {
-  transform:
-    translateY(0);
-}
-
-
-button:focus,
-select:focus,
-input:focus {
-  outline:
-    3px solid #4d90fe;
-
-  outline-offset:
-    2px;
-}
-
-
-/* Primary button */
 
 .primary-button {
   background: #1976d2;
@@ -349,8 +304,6 @@ input:focus {
   background: #125ca5;
 }
 
-
-/* Secondary button */
 
 .secondary-button {
   background: #555;
@@ -365,11 +318,11 @@ input:focus {
 
 
 /* =========================
-   Messages
+   Message
    ========================= */
 
 .message {
-  min-height: 28px;
+  min-height: 30px;
 
   text-align: center;
 
@@ -378,8 +331,6 @@ input:focus {
   font-weight: bold;
 
   margin: 15px 0;
-
-  padding: 5px;
 }
 
 
@@ -414,8 +365,6 @@ input:focus {
 
 .leaderboard h2 {
   text-align: center;
-
-  margin-bottom: 15px;
 }
 
 
@@ -450,13 +399,6 @@ input:focus {
   background: #1976d2;
 
   color: white;
-
-  font-weight: bold;
-}
-
-
-.leaderboard tbody tr:hover {
-  background: #f1f5fb;
 }
 
 
@@ -468,7 +410,7 @@ input:focus {
 
 
 /* =========================
-   Dark Mode
+   Dark mode
    ========================= */
 
 body.dark {
@@ -494,12 +436,8 @@ body.dark .game-info select {
 
 body.dark #sudoku-board {
   border-color: #777;
-
-  background: #777;
 }
 
-
-/* Dark alternating boxes */
 
 body.dark .box-light {
   background: #26344a;
@@ -512,13 +450,11 @@ body.dark .box-dark {
 
 
 body.dark .sudoku-cell {
-  color: #fff;
+  color: white;
 
   border-color: #555;
 }
 
-
-/* Prefilled */
 
 body.dark .prefilled {
   background: #444 !important;
@@ -527,16 +463,12 @@ body.dark .prefilled {
 }
 
 
-/* Hinted */
-
 body.dark .hinted {
   background: #174d2a !important;
 
   color: #b9f6c5;
 }
 
-
-/* Incorrect */
 
 body.dark .incorrect {
   background: #5b1c1c !important;
@@ -547,8 +479,6 @@ body.dark .incorrect {
     #ff6b6b !important;
 }
 
-
-/* Leaderboard */
 
 body.dark .leaderboard table {
   background: #222;
@@ -565,29 +495,10 @@ body.dark .leaderboard th {
 }
 
 
-body.dark .leaderboard tbody tr:hover {
-  background: #2c2c2c;
-}
-
-
-/* Dark secondary button */
-
 body.dark .secondary-button {
   background: #ddd;
 
   color: #111;
-}
-
-
-body.dark .secondary-button:hover {
-  background: #fff;
-}
-
-
-/* Dark messages */
-
-body.dark .message.info {
-  color: #8ab4f8;
 }
 
 
@@ -598,6 +509,8 @@ body.dark .message.info {
 @media (max-width: 600px) {
 
   .container {
+    width: 100%;
+
     padding:
       15px
       8px
@@ -613,21 +526,24 @@ body.dark .message.info {
 
 
   .game-info {
-    gap: 12px;
-
     flex-direction: column;
+
+    gap: 12px;
   }
 
 
   #sudoku-board {
     width: 96vw;
 
+    max-width: 540px;
+
     border-width: 3px;
   }
 
 
   .sudoku-cell {
-    font-size: 18px;
+    font-size:
+      clamp(14px, 5vw, 20px);
   }
 
 
@@ -644,37 +560,26 @@ body.dark .message.info {
 
 
   .leaderboard {
-    margin-top: 30px;
+    overflow: visible;
   }
 
 
   .leaderboard table {
     min-width: 600px;
   }
-
-
-  .message {
-    font-size: 16px;
-  }
 }
 
 
-/* =========================
-   Very Small Screens
-   ========================= */
+/* Very small screens */
 
 @media (max-width: 380px) {
 
   .sudoku-cell {
-    font-size: 16px;
+    font-size: 14px;
   }
 
 
-  .container {
-    width: 100%;
-
-    padding-left: 5px;
-
-    padding-right: 5px;
+  h1 {
+    font-size: 2rem;
   }
 }

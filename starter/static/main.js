@@ -1,4 +1,23 @@
-const SIZE = 9;
+// =========================
+// Game state
+// =========================
+
+let puzzle = [];
+
+let solution = [];
+
+let difficulty = "medium";
+
+let elapsedSeconds = 0;
+
+let timerInterval = null;
+
+let hintsUsed = 0;
+
+let gameCompleted = false;
+
+let gameLoading = false;
+
 
 const LEADERBOARD_KEY =
   "sudokuLeaderboard";
@@ -8,72 +27,73 @@ const DARK_MODE_KEY =
 
 
 // =========================
-// Game State
+// DOM elements
 // =========================
 
-let puzzle = [];
+const boardElement =
+  document.getElementById(
+    "sudoku-board"
+  );
 
-let solution = [];
+const difficultyElement =
+  document.getElementById(
+    "difficulty"
+  );
 
-let timerSeconds = 0;
+const timerElement =
+  document.getElementById(
+    "timer"
+  );
 
-let timerInterval = null;
+const hintsElement =
+  document.getElementById(
+    "hints-used"
+  );
 
-let hintsUsed = 0;
-
-let gameCompleted = false;
-
-let generatingPuzzle = false;
-
-
-// Number of pre-filled cells
-// for each difficulty.
-
-const DIFFICULTY_CLUES = {
-  easy: 45,
-  medium: 36,
-  hard: 30
-};
+const messageElement =
+  document.getElementById(
+    "message"
+  );
 
 
 // =========================
-// Utility Functions
+// Utility
 // =========================
 
-function shuffle(array) {
+function capitalize(value) {
 
-  const shuffled = [...array];
-
-  for (
-    let i = shuffled.length - 1;
-    i > 0;
-    i--
-  ) {
-
-    const j =
-      Math.floor(
-        Math.random() * (i + 1)
-      );
-
-    [
-      shuffled[i],
-      shuffled[j]
-    ] =
-    [
-      shuffled[j],
-      shuffled[i]
-    ];
-  }
-
-  return shuffled;
+  return (
+    value.charAt(0).toUpperCase() +
+    value.slice(1)
+  );
 }
 
 
-function copyBoard(board) {
+function formatTime(seconds) {
 
-  return board.map(
-    row => [...row]
+  const minutes =
+    Math.floor(seconds / 60);
+
+  const remaining =
+    seconds % 60;
+
+  return (
+    `${String(minutes).padStart(2, "0")}:` +
+    `${String(remaining).padStart(2, "0")}`
   );
+}
+
+
+function showMessage(
+  message,
+  type = "info"
+) {
+
+  messageElement.textContent =
+    message;
+
+  messageElement.className =
+    `message ${type}`;
 }
 
 
@@ -81,46 +101,26 @@ function copyBoard(board) {
 // Timer
 // =========================
 
-function formatTime(seconds) {
-
-  const minutes =
-    Math.floor(seconds / 60);
-
-  const secs =
-    seconds % 60;
-
-  return (
-    `${String(minutes).padStart(2, "0")}:` +
-    `${String(secs).padStart(2, "0")}`
-  );
-}
-
-
-function updateTimer() {
-
-  document.getElementById(
-    "timer"
-  ).innerText =
-    formatTime(timerSeconds);
-}
-
-
 function startTimer() {
 
   stopTimer();
 
-  timerSeconds = 0;
+  elapsedSeconds = 0;
 
-  updateTimer();
+  timerElement.textContent =
+    "00:00";
 
   timerInterval =
     setInterval(() => {
 
       if (!gameCompleted) {
 
-        timerSeconds += 1;
+        elapsedSeconds++;
 
-        updateTimer();
+        timerElement.textContent =
+          formatTime(
+            elapsedSeconds
+          );
       }
 
     }, 1000);
@@ -129,7 +129,7 @@ function startTimer() {
 
 function stopTimer() {
 
-  if (timerInterval) {
+  if (timerInterval !== null) {
 
     clearInterval(
       timerInterval
@@ -141,98 +141,301 @@ function stopTimer() {
 
 
 // =========================
-// Sudoku Validation
+// Create board
 // =========================
 
-function isValid(board, row, col, number) {
+function createBoardElement() {
 
-  // Check row
-
-  for (
-    let c = 0;
-    c < SIZE;
-    c++
-  ) {
-
-    if (
-      board[row][c] === number
-    ) {
-
-      return false;
-    }
-  }
+  boardElement.innerHTML = "";
 
 
-  // Check column
+  for (let row = 0; row < 9; row++) {
 
-  for (
-    let r = 0;
-    r < SIZE;
-    r++
-  ) {
+    for (let col = 0; col < 9; col++) {
 
-    if (
-      board[r][col] === number
-    ) {
-
-      return false;
-    }
-  }
+      const input =
+        document.createElement(
+          "input"
+        );
 
 
-  // Check 3x3 box
+      input.type = "text";
 
-  const startRow =
-    Math.floor(row / 3) * 3;
+      input.inputMode = "numeric";
 
-  const startCol =
-    Math.floor(col / 3) * 3;
+      input.maxLength = 1;
+
+      input.className =
+        "sudoku-cell";
 
 
-  for (
-    let r = startRow;
-    r < startRow + 3;
-    r++
-  ) {
+      // Accessibility
 
-    for (
-      let c = startCol;
-      c < startCol + 3;
-      c++
-    ) {
+      input.setAttribute(
+        "aria-label",
+        `Row ${row + 1}, column ${col + 1}`
+      );
+
+
+      input.setAttribute(
+        "role",
+        "gridcell"
+      );
+
+
+      input.dataset.row =
+        row;
+
+      input.dataset.col =
+        col;
+
+
+      // Alternating 3x3 boxes
+
+      const boxRow =
+        Math.floor(row / 3);
+
+      const boxCol =
+        Math.floor(col / 3);
+
 
       if (
-        board[r][c] === number
+        (boxRow + boxCol) % 2 === 0
       ) {
 
-        return false;
+        input.classList.add(
+          "box-light"
+        );
+
+      } else {
+
+        input.classList.add(
+          "box-dark"
+        );
       }
+
+
+      boardElement.appendChild(
+        input
+      );
     }
   }
-
-
-  return true;
 }
 
 
 // =========================
-// Immediate Conflict Check
+// Render puzzle
 // =========================
 
-function hasConflict(
-  board,
+function renderPuzzle(board) {
+
+  puzzle = board.map(
+    row => [...row]
+  );
+
+
+  createBoardElement();
+
+
+  const cells =
+    boardElement.querySelectorAll(
+      ".sudoku-cell"
+    );
+
+
+  for (let row = 0; row < 9; row++) {
+
+    for (let col = 0; col < 9; col++) {
+
+      const index =
+        row * 9 + col;
+
+      const cell =
+        cells[index];
+
+      const value =
+        board[row][col];
+
+
+      if (value !== 0) {
+
+        cell.value =
+          value;
+
+        cell.disabled =
+          true;
+
+        cell.classList.add(
+          "prefilled"
+        );
+
+      } else {
+
+        cell.value =
+          "";
+
+        cell.disabled =
+          false;
+      }
+    }
+  }
+}
+
+
+// =========================
+// New game
+// =========================
+
+async function newGame() {
+
+  if (gameLoading) {
+    return;
+  }
+
+
+  gameLoading = true;
+
+  gameCompleted = false;
+
+  hintsUsed = 0;
+
+  hintsElement.textContent =
+    "0";
+
+
+  stopTimer();
+
+
+  showMessage(
+    "Generating a new puzzle...",
+    "info"
+  );
+
+
+  difficulty =
+    difficultyElement.value;
+
+
+  try {
+
+    const response =
+      await fetch(
+        `/new?difficulty=${encodeURIComponent(difficulty)}`
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "Unable to create puzzle"
+      );
+    }
+
+
+    puzzle =
+      data.puzzle;
+
+
+    difficulty =
+      data.difficulty;
+
+
+    // The solution is deliberately
+    // not sent by Flask.
+    //
+    // We use Check/Hint endpoints
+    // through the server state.
+
+
+    renderPuzzle(
+      puzzle
+    );
+
+
+    startTimer();
+
+
+    showMessage(
+      `${capitalize(difficulty)} puzzle ready!`,
+      "success"
+    );
+
+  } catch (error) {
+
+    showMessage(
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    gameLoading = false;
+  }
+}
+
+
+// =========================
+// Get current board
+// =========================
+
+function getCurrentBoard() {
+
+  const board =
+    Array.from(
+      { length: 9 },
+      () => Array(9).fill(0)
+    );
+
+
+  const cells =
+    boardElement.querySelectorAll(
+      ".sudoku-cell"
+    );
+
+
+  cells.forEach(cell => {
+
+    const row =
+      Number(cell.dataset.row);
+
+    const col =
+      Number(cell.dataset.col);
+
+
+    if (cell.value) {
+
+      board[row][col] =
+        Number(cell.value);
+    }
+  });
+
+
+  return board;
+}
+
+
+// =========================
+// Immediate conflict check
+// =========================
+
+function hasImmediateConflict(
   row,
   col,
   number
 ) {
 
+  const board =
+    getCurrentBoard();
+
+
   // Row
 
-  for (
-    let c = 0;
-    c < SIZE;
-    c++
-  ) {
+  for (let c = 0; c < 9; c++) {
 
     if (
       c !== col &&
@@ -246,11 +449,7 @@ function hasConflict(
 
   // Column
 
-  for (
-    let r = 0;
-    r < SIZE;
-    r++
-  ) {
+  for (let r = 0; r < 9; r++) {
 
     if (
       r !== row &&
@@ -262,7 +461,7 @@ function hasConflict(
   }
 
 
-  // 3x3 box
+  // Box
 
   const startRow =
     Math.floor(row / 3) * 3;
@@ -299,781 +498,78 @@ function hasConflict(
 
 
 // =========================
-// Sudoku Solver
-// =========================
-
-function solveSudoku(board) {
-
-  const working =
-    copyBoard(board);
-
-
-  function solve() {
-
-    // Find empty cell
-
-    for (
-      let row = 0;
-      row < SIZE;
-      row++
-    ) {
-
-      for (
-        let col = 0;
-        col < SIZE;
-        col++
-      ) {
-
-        if (
-          working[row][col] === 0
-        ) {
-
-          const numbers =
-            shuffle([
-              1, 2, 3,
-              4, 5, 6,
-              7, 8, 9
-            ]);
-
-
-          for (
-            const number of numbers
-          ) {
-
-            if (
-              isValid(
-                working,
-                row,
-                col,
-                number
-              )
-            ) {
-
-              working[row][col] =
-                number;
-
-
-              if (solve()) {
-
-                return true;
-              }
-
-
-              working[row][col] = 0;
-            }
-          }
-
-
-          return false;
-        }
-      }
-    }
-
-
-    return true;
-  }
-
-
-  return solve()
-    ? working
-    : null;
-}
-
-
-// =========================
-// Count Solutions
+// Event delegation
 // =========================
 //
-// This checks whether a puzzle
-// has exactly one solution.
-//
-// We stop after finding 2 because:
-// 0 = no solution
-// 1 = unique solution
-// 2 = multiple solutions
+// One listener on the board handles
+// all dynamically-created cells.
 // =========================
 
-function countSolutions(
-  board,
-  limit = 2
-) {
-
-  const working =
-    copyBoard(board);
-
-  let count = 0;
-
-
-  function solve() {
-
-    if (count >= limit) {
-
-      return;
-    }
-
-
-    // Find empty cell
-
-    let emptyRow = -1;
-
-    let emptyCol = -1;
-
-
-    for (
-      let row = 0;
-      row < SIZE;
-      row++
-    ) {
-
-      for (
-        let col = 0;
-        col < SIZE;
-        col++
-      ) {
-
-        if (
-          working[row][col] === 0
-        ) {
-
-          emptyRow = row;
-
-          emptyCol = col;
-
-          break;
-        }
-      }
-
-
-      if (
-        emptyRow !== -1
-      ) {
-
-        break;
-      }
-    }
-
-
-    // Complete board
+boardElement.addEventListener(
+  "input",
+  event => {
 
     if (
-      emptyRow === -1
-    ) {
-
-      count++;
-
-      return;
-    }
-
-
-    // Try numbers
-
-    for (
-      let number = 1;
-      number <= 9;
-      number++
-    ) {
-
-      if (
-        isValid(
-          working,
-          emptyRow,
-          emptyCol,
-          number
-        )
-      ) {
-
-        working[
-          emptyRow
-        ][
-          emptyCol
-        ] = number;
-
-
-        solve();
-
-
-        working[
-          emptyRow
-        ][
-          emptyCol
-        ] = 0;
-
-
-        if (
-          count >= limit
-        ) {
-
-          return;
-        }
-      }
-    }
-  }
-
-
-  solve();
-
-
-  return count;
-}
-
-
-// =========================
-// Generate Complete Board
-// =========================
-
-function generateSolvedBoard() {
-
-  const emptyBoard =
-    Array.from(
-      { length: SIZE },
-      () => Array(SIZE).fill(0)
-    );
-
-
-  return solveSudoku(
-    emptyBoard
-  );
-}
-
-
-// =========================
-// Generate Puzzle
-// =========================
-//
-// This is where the difficulty
-// actually changes.
-//
-// Easy   = 45 clues
-// Medium = 36 clues
-// Hard   = 30 clues
-//
-// Every removal is checked to make
-// sure the puzzle still has exactly
-// one solution.
-// =========================
-
-function generatePuzzle(
-  difficulty
-) {
-
-  const clues =
-    DIFFICULTY_CLUES[
-      difficulty
-    ] || DIFFICULTY_CLUES.medium;
-
-
-  const solvedBoard =
-    generateSolvedBoard();
-
-
-  if (!solvedBoard) {
-
-    return null;
-  }
-
-
-  const puzzleBoard =
-    copyBoard(solvedBoard);
-
-
-  const cellsToRemove =
-    SIZE * SIZE - clues;
-
-
-  const positions =
-    shuffle(
-      Array.from(
-        { length: SIZE * SIZE },
-        (_, index) => index
+      !event.target.classList.contains(
+        "sudoku-cell"
       )
+    ) {
+      return;
+    }
+
+
+    const cell =
+      event.target;
+
+
+    const row =
+      Number(cell.dataset.row);
+
+    const col =
+      Number(cell.dataset.col);
+
+
+    cell.classList.remove(
+      "incorrect"
     );
 
 
-  let removed = 0;
+    // Only allow 1-9.
+
+    cell.value =
+      cell.value.replace(
+        /[^1-9]/g,
+        ""
+      );
 
 
-  for (
-    const position of positions
-  ) {
+    if (!cell.value) {
+
+      return;
+    }
+
+
+    const number =
+      Number(cell.value);
+
+
+    // Immediate row/column/box validation.
 
     if (
-      removed >= cellsToRemove
+      hasImmediateConflict(
+        row,
+        col,
+        number
+      )
     ) {
 
-      break;
-    }
-
-
-    const row =
-      Math.floor(
-        position / SIZE
-      );
-
-    const col =
-      position % SIZE;
-
-
-    const backup =
-      puzzleBoard[row][col];
-
-
-    puzzleBoard[row][col] = 0;
-
-
-    // Make sure removing this cell
-    // does not create multiple solutions.
-
-    const solutions =
-      countSolutions(
-        puzzleBoard,
-        2
-      );
-
-
-    if (solutions === 1) {
-
-      removed++;
-
-    } else {
-
-      // Put it back if uniqueness
-      // was lost.
-
-      puzzleBoard[row][col] =
-        backup;
-    }
-  }
-
-
-  // Final validation
-
-  if (
-    countSolutions(
-      puzzleBoard,
-      2
-    ) !== 1
-  ) {
-
-    return null;
-  }
-
-
-  return {
-    puzzle: puzzleBoard,
-
-    solution: solvedBoard
-  };
-}
-
-
-// =========================
-// Board Creation
-// =========================
-
-function createBoardElement() {
-
-  const boardDiv =
-    document.getElementById(
-      "sudoku-board"
-    );
-
-
-  boardDiv.innerHTML = "";
-
-
-  for (
-    let row = 0;
-    row < SIZE;
-    row++
-  ) {
-
-    for (
-      let col = 0;
-      col < SIZE;
-      col++
-    ) {
-
-      const input =
-        document.createElement(
-          "input"
-        );
-
-
-      input.type = "text";
-
-      input.inputMode = "numeric";
-
-      input.maxLength = 1;
-
-      input.className =
-        "sudoku-cell";
-
-
-      input.dataset.row = row;
-
-      input.dataset.col = col;
-
-
-      input.setAttribute(
-        "aria-label",
-        `Row ${row + 1}, Column ${col + 1}`
-      );
-
-
-      // =========================
-      // Alternating 3x3 colors
-      // =========================
-
-      const boxRow =
-        Math.floor(row / 3);
-
-      const boxCol =
-        Math.floor(col / 3);
-
-
-      if (
-        (boxRow + boxCol) % 2 === 0
-      ) {
-
-        input.classList.add(
-          "box-light"
-        );
-
-      } else {
-
-        input.classList.add(
-          "box-dark"
-        );
-      }
-
-
-      // =========================
-      // User Input
-      // =========================
-
-      input.addEventListener(
-        "input",
-        handleCellInput
-      );
-
-
-      boardDiv.appendChild(
-        input
-      );
-    }
-  }
-}
-
-
-// =========================
-// Handle Cell Input
-// =========================
-
-function handleCellInput(event) {
-
-  const input =
-    event.target;
-
-
-  // Allow only numbers 1-9
-
-  const value =
-    input.value.replace(
-      /[^1-9]/g,
-      ""
-    );
-
-
-  input.value = value;
-
-
-  input.classList.remove(
-    "incorrect"
-  );
-
-
-  if (!value) {
-
-    showMessage("", "");
-
-    return;
-  }
-
-
-  const row =
-    Number(input.dataset.row);
-
-  const col =
-    Number(input.dataset.col);
-
-  const number =
-    Number(value);
-
-
-  const board =
-    getCurrentBoard();
-
-
-  // Immediate validation
-
-  if (
-    hasConflict(
-      board,
-      row,
-      col,
-      number
-    )
-  ) {
-
-    input.classList.add(
-      "incorrect"
-    );
-
-
-    showMessage(
-      "Invalid move: number already exists in this row, column, or 3x3 box.",
-      "error"
-    );
-
-
-    return;
-  }
-
-
-  // Also check against the actual
-  // Sudoku solution.
-
-  if (
-    solution.length &&
-    solution[row][col] !== number
-  ) {
-
-    input.classList.add(
-      "incorrect"
-    );
-
-
-    showMessage(
-      "Incorrect number. Try another value.",
-      "error"
-    );
-
-
-    return;
-  }
-
-
-  showMessage(
-    "Good move!",
-    "success"
-  );
-
-
-  // Automatically detect completion
-
-  if (
-    isPuzzleSolved()
-  ) {
-
-    completeGame();
-  }
-}
-
-
-// =========================
-// Get Current Board
-// =========================
-
-function getCurrentBoard() {
-
-  const inputs =
-    document.querySelectorAll(
-      ".sudoku-cell"
-    );
-
-
-  const board =
-    Array.from(
-      { length: SIZE },
-      () => Array(SIZE).fill(0)
-    );
-
-
-  inputs.forEach(input => {
-
-    const row =
-      Number(input.dataset.row);
-
-    const col =
-      Number(input.dataset.col);
-
-
-    board[row][col] =
-      input.value
-        ? Number(input.value)
-        : 0;
-  });
-
-
-  return board;
-}
-
-
-// =========================
-// Render Puzzle
-// =========================
-
-function renderPuzzle(
-  puzzleData
-) {
-
-  puzzle =
-    copyBoard(
-      puzzleData
-    );
-
-
-  createBoardElement();
-
-
-  const inputs =
-    document.querySelectorAll(
-      ".sudoku-cell"
-    );
-
-
-  for (
-    let row = 0;
-    row < SIZE;
-    row++
-  ) {
-
-    for (
-      let col = 0;
-      col < SIZE;
-      col++
-    ) {
-
-      const index =
-        row * SIZE + col;
-
-      const input =
-        inputs[index];
-
-      const value =
-        puzzle[row][col];
-
-
-      input.classList.remove(
-        "prefilled",
-        "hinted",
+      cell.classList.add(
         "incorrect"
       );
 
 
-      if (
-        value !== 0
-      ) {
-
-        input.value =
-          value;
-
-        input.disabled =
-          true;
-
-        input.classList.add(
-          "prefilled"
-        );
-
-      } else {
-
-        input.value =
-          "";
-
-        input.disabled =
-          false;
-      }
-    }
-  }
-}
-
-
-// =========================
-// New Game
-// =========================
-
-function newGame() {
-
-  if (generatingPuzzle) {
-
-    return;
-  }
-
-
-  generatingPuzzle = true;
-
-  gameCompleted = false;
-
-  hintsUsed = 0;
-
-
-  stopTimer();
-
-
-  document.getElementById(
-    "hints-used"
-  ).innerText = "0";
-
-
-  showMessage(
-    "Generating a unique puzzle...",
-    "info"
-  );
-
-
-  // Use setTimeout so the browser
-  // can display the message before
-  // puzzle generation starts.
-
-  setTimeout(() => {
-
-    const difficulty =
-      document.getElementById(
-        "difficulty"
-      ).value;
-
-
-    let game = null;
-
-
-    // Try a few times in case
-    // generation fails.
-
-    for (
-      let attempt = 0;
-      attempt < 5;
-      attempt++
-    ) {
-
-      game =
-        generatePuzzle(
-          difficulty
-        );
-
-
-      if (game) {
-
-        break;
-      }
-    }
-
-
-    if (!game) {
-
-      generatingPuzzle = false;
-
       showMessage(
-        "Unable to generate a unique puzzle. Please try again.",
+        "Invalid move: that number already exists in the row, column, or 3x3 box.",
         "error"
       );
 
@@ -1081,72 +577,129 @@ function newGame() {
     }
 
 
-    puzzle =
-      copyBoard(
-        game.puzzle
+    showMessage(
+      "Valid move.",
+      "success"
+    );
+  }
+);
+
+
+// =========================
+// Check solution
+// =========================
+
+async function checkSolution() {
+
+  if (gameCompleted) {
+    return;
+  }
+
+
+  const board =
+    getCurrentBoard();
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/check",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              board: board
+            })
+        }
       );
 
 
-    solution =
-      copyBoard(
-        game.solution
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "Unable to check solution"
+      );
+    }
+
+
+    // Remove previous highlights.
+
+    const cells =
+      boardElement.querySelectorAll(
+        ".sudoku-cell"
       );
 
 
-    renderPuzzle(
-      game.puzzle
+    cells.forEach(cell => {
+
+      cell.classList.remove(
+        "incorrect"
+      );
+    });
+
+
+    // Highlight incorrect cells.
+
+    data.incorrect.forEach(
+      position => {
+
+        const index =
+          position.row * 9 +
+          position.col;
+
+
+        cells[index].classList.add(
+          "incorrect"
+        );
+      }
     );
 
 
-    hintsUsed = 0;
+    if (
+      data.incorrect.length > 0
+    ) {
 
-    gameCompleted = false;
+      showMessage(
+        `${data.incorrect.length} incorrect cell(s) highlighted.`,
+        "error"
+      );
+
+      return;
+    }
 
 
-    document.getElementById(
-      "hints-used"
-    ).innerText = "0";
+    if (!data.complete) {
 
+      showMessage(
+        "The puzzle is not complete yet. Keep solving!",
+        "info"
+      );
+
+      return;
+    }
+
+
+    completeGame();
+
+  } catch (error) {
 
     showMessage(
-      `${capitalize(difficulty)} puzzle ready!`,
-      "info"
+      error.message,
+      "error"
     );
-
-
-    generatingPuzzle = false;
-
-
-    startTimer();
-
-  }, 50);
-}
-
-
-// =========================
-// Difficulty Change
-// =========================
-//
-// IMPORTANT:
-// Changing Easy/Medium/Hard
-// immediately creates a NEW puzzle.
-// =========================
-
-function setupDifficulty() {
-
-  const difficulty =
-    document.getElementById(
-      "difficulty"
-    );
-
-
-  difficulty.addEventListener(
-    "change",
-    () => {
-
-      newGame();
-    }
-  );
+  }
 }
 
 
@@ -1154,272 +707,105 @@ function setupDifficulty() {
 // Hint
 // =========================
 
-function useHint() {
+async function useHint() {
 
   if (gameCompleted) {
-
     return;
   }
 
-
-  const inputs =
-    document.querySelectorAll(
-      ".sudoku-cell"
-    );
-
-
-  const emptyCells = [];
-
-
-  for (
-    let row = 0;
-    row < SIZE;
-    row++
-  ) {
-
-    for (
-      let col = 0;
-      col < SIZE;
-      col++
-    ) {
-
-      const input =
-        inputs[
-          row * SIZE + col
-        ];
-
-
-      if (
-        puzzle[row][col] === 0 &&
-        !input.disabled &&
-        !input.value
-      ) {
-
-        emptyCells.push(
-          [row, col]
-        );
-      }
-    }
-  }
-
-
-  if (
-    emptyCells.length === 0
-  ) {
-
-    showMessage(
-      "There are no empty cells for a hint.",
-      "info"
-    );
-
-    return;
-  }
-
-
-  // Select random empty cell
-
-  const randomIndex =
-    Math.floor(
-      Math.random() *
-      emptyCells.length
-    );
-
-
-  const [
-    row,
-    col
-  ] =
-    emptyCells[
-      randomIndex
-    ];
-
-
-  const index =
-    row * SIZE + col;
-
-
-  const input =
-    inputs[index];
-
-
-  // Put correct answer
-
-  input.value =
-    solution[row][col];
-
-
-  // LOCK the hint cell
-
-  input.disabled =
-    true;
-
-
-  input.classList.add(
-    "hinted"
-  );
-
-
-  hintsUsed++;
-
-
-  document.getElementById(
-    "hints-used"
-  ).innerText =
-    hintsUsed;
-
-
-  showMessage(
-    "Hint added! This cell is now locked.",
-    "success"
-  );
-
-
-  if (
-    isPuzzleSolved()
-  ) {
-
-    completeGame();
-  }
-}
-
-
-// =========================
-// Check Solution
-// =========================
-
-function checkSolution() {
-
-  if (gameCompleted) {
-
-    return;
-  }
-
-
-  const inputs =
-    document.querySelectorAll(
-      ".sudoku-cell"
-    );
-
-
-  let incorrectCount = 0;
-
-  let emptyCount = 0;
-
-
-  inputs.forEach(input => {
-
-    const row =
-      Number(input.dataset.row);
-
-    const col =
-      Number(input.dataset.col);
-
-
-    input.classList.remove(
-      "incorrect"
-    );
-
-
-    if (!input.value) {
-
-      emptyCount++;
-
-      return;
-    }
-
-
-    const number =
-      Number(input.value);
-
-
-    // Check actual solution
-
-    if (
-      number !==
-      solution[row][col]
-    ) {
-
-      input.classList.add(
-        "incorrect"
-      );
-
-      incorrectCount++;
-    }
-  });
-
-
-  if (
-    incorrectCount > 0
-  ) {
-
-    showMessage(
-      `${incorrectCount} incorrect cell(s) highlighted.`,
-      "error"
-    );
-
-    return;
-  }
-
-
-  if (
-    emptyCount > 0
-  ) {
-
-    showMessage(
-      "There are still empty cells. Keep solving!",
-      "info"
-    );
-
-    return;
-  }
-
-
-  completeGame();
-}
-
-
-// =========================
-// Check if Puzzle Solved
-// =========================
-
-function isPuzzleSolved() {
 
   const board =
     getCurrentBoard();
 
 
-  for (
-    let row = 0;
-    row < SIZE;
-    row++
-  ) {
+  try {
 
-    for (
-      let col = 0;
-      col < SIZE;
-      col++
-    ) {
+    const response =
+      await fetch(
+        "/hint",
+        {
+          method: "POST",
 
-      if (
-        board[row][col] === 0
-      ) {
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-        return false;
-      }
+          body:
+            JSON.stringify({
+              board: board
+            })
+        }
+      );
 
 
-      if (
-        board[row][col] !==
-        solution[row][col]
-      ) {
+    const data =
+      await response.json();
 
-        return false;
-      }
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "Unable to provide hint"
+      );
     }
+
+
+    const cells =
+      boardElement.querySelectorAll(
+        ".sudoku-cell"
+      );
+
+
+    const index =
+      data.row * 9 +
+      data.col;
+
+
+    const cell =
+      cells[index];
+
+
+    cell.value =
+      data.value;
+
+
+    cell.disabled =
+      true;
+
+
+    cell.classList.add(
+      "hinted"
+    );
+
+
+    hintsUsed =
+      data.hints_used;
+
+
+    hintsElement.textContent =
+      hintsUsed;
+
+
+    showMessage(
+      "Hint added! The cell has been locked.",
+      "success"
+    );
+
+
+    if (data.complete) {
+
+      completeGame();
+    }
+
+  } catch (error) {
+
+    showMessage(
+      error.message,
+      "error"
+    );
   }
-
-
-  return true;
 }
 
 
@@ -1430,19 +816,17 @@ function isPuzzleSolved() {
 function completeGame() {
 
   if (gameCompleted) {
-
     return;
   }
 
 
   gameCompleted = true;
 
-
   stopTimer();
 
 
   showMessage(
-    "🎉 Congratulations! You solved the puzzle!",
+    `🎉 Congratulations! You solved the ${capitalize(difficulty)} puzzle in ${formatTime(elapsedSeconds)} with ${hintsUsed} hint(s).`,
     "success"
   );
 
@@ -1459,11 +843,15 @@ function getLeaderboard() {
 
   try {
 
-    return JSON.parse(
+    const data =
       localStorage.getItem(
         LEADERBOARD_KEY
-      ) || "[]"
-    );
+      );
+
+
+    return data
+      ? JSON.parse(data)
+      : [];
 
   } catch {
 
@@ -1472,29 +860,18 @@ function getLeaderboard() {
 }
 
 
-// =========================
-// Save Score
-// =========================
-
 function saveScore() {
 
   const name =
-    prompt(
-      "Congratulations! Enter your name for the leaderboard:"
+    window.prompt(
+      "You solved it! Enter your name for the Top 10:"
     );
 
 
-  const playerName =
-    name &&
-    name.trim()
+  const cleanName =
+    name && name.trim()
       ? name.trim()
       : "Anonymous";
-
-
-  const difficulty =
-    document.getElementById(
-      "difficulty"
-    ).value;
 
 
   const scores =
@@ -1504,32 +881,24 @@ function saveScore() {
   scores.push({
 
     name:
-      playerName,
+      cleanName,
 
-    time:
-      timerSeconds,
+    seconds:
+      elapsedSeconds,
 
     difficulty:
       difficulty,
 
     hints:
-      hintsUsed,
-
-    date:
-      new Date().toISOString()
-
+      hintsUsed
   });
 
 
-  // Fastest time first
-
   scores.sort(
     (a, b) =>
-      a.time - b.time
+      a.seconds - b.seconds
   );
 
-
-  // Keep only top 10
 
   const topTen =
     scores.slice(0, 10);
@@ -1537,19 +906,13 @@ function saveScore() {
 
   localStorage.setItem(
     LEADERBOARD_KEY,
-    JSON.stringify(
-      topTen
-    )
+    JSON.stringify(topTen)
   );
 
 
   renderLeaderboard();
 }
 
-
-// =========================
-// Render Leaderboard
-// =========================
 
 function renderLeaderboard() {
 
@@ -1598,36 +961,18 @@ function renderLeaderboard() {
 
       row.innerHTML = `
         <td>${index + 1}</td>
-
-        <td>
-          ${escapeHtml(score.name)}
-        </td>
-
-        <td>
-          ${formatTime(score.time)}
-        </td>
-
-        <td>
-          ${capitalize(score.difficulty)}
-        </td>
-
-        <td>
-          ${score.hints}
-        </td>
+        <td>${escapeHtml(score.name)}</td>
+        <td>${formatTime(score.seconds)}</td>
+        <td>${capitalize(score.difficulty)}</td>
+        <td>${score.hints}</td>
       `;
 
 
-      body.appendChild(
-        row
-      );
+      body.appendChild(row);
     }
   );
 }
 
-
-// =========================
-// Prevent HTML Injection
-// =========================
 
 function escapeHtml(value) {
 
@@ -1646,46 +991,7 @@ function escapeHtml(value) {
 
 
 // =========================
-// Capitalize
-// =========================
-
-function capitalize(value) {
-
-  return (
-    value.charAt(0).toUpperCase() +
-    value.slice(1)
-  );
-}
-
-
-// =========================
-// Messages
-// =========================
-
-function showMessage(
-  message,
-  type
-) {
-
-  const element =
-    document.getElementById(
-      "message"
-    );
-
-
-  element.innerText =
-    message;
-
-
-  element.className =
-    type
-      ? `message ${type}`
-      : "message";
-}
-
-
-// =========================
-// Dark Mode
+// Dark mode
 // =========================
 
 function setupDarkMode() {
@@ -1696,20 +1002,20 @@ function setupDarkMode() {
     );
 
 
-  const enabled =
+  const dark =
     localStorage.getItem(
       DARK_MODE_KEY
     ) === "true";
 
 
-  if (enabled) {
+  if (dark) {
 
     document.body.classList.add(
       "dark"
     );
 
 
-    button.innerText =
+    button.textContent =
       "☀️ Light Mode";
   }
 
@@ -1723,7 +1029,7 @@ function setupDarkMode() {
       );
 
 
-      const dark =
+      const enabled =
         document.body.classList.contains(
           "dark"
         );
@@ -1731,12 +1037,12 @@ function setupDarkMode() {
 
       localStorage.setItem(
         DARK_MODE_KEY,
-        dark.toString()
+        enabled
       );
 
 
-      button.innerText =
-        dark
+      button.textContent =
+        enabled
           ? "☀️ Light Mode"
           : "🌙 Dark Mode";
     }
@@ -1745,63 +1051,52 @@ function setupDarkMode() {
 
 
 // =========================
-// Start Application
+// Difficulty
 // =========================
 
-window.addEventListener(
-  "load",
+difficultyElement.addEventListener(
+  "change",
   () => {
 
-    // New Game
-
-    document
-      .getElementById("new-game")
-      .addEventListener(
-        "click",
-        newGame
-      );
-
-
-    // Check
-
-    document
-      .getElementById(
-        "check-solution"
-      )
-      .addEventListener(
-        "click",
-        checkSolution
-      );
-
-
-    // Hint
-
-    document
-      .getElementById("hint")
-      .addEventListener(
-        "click",
-        useHint
-      );
-
-
-    // Difficulty selector
-
-    setupDifficulty();
-
-
-    // Dark mode
-
-    setupDarkMode();
-
-
-    // Leaderboard
-
-    renderLeaderboard();
-
-
-    // Start first game
-
     newGame();
-
   }
 );
+
+
+// =========================
+// Buttons
+// =========================
+
+document
+  .getElementById("new-game")
+  .addEventListener(
+    "click",
+    newGame
+  );
+
+
+document
+  .getElementById("check-solution")
+  .addEventListener(
+    "click",
+    checkSolution
+  );
+
+
+document
+  .getElementById("hint")
+  .addEventListener(
+    "click",
+    useHint
+  );
+
+
+// =========================
+// Start
+// =========================
+
+setupDarkMode();
+
+renderLeaderboard();
+
+newGame();
