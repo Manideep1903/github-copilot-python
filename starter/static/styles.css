@@ -46,6 +46,10 @@ h1 {
 .game-info select {
   padding: 8px;
   font-size: 16px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: white;
+  color: #222;
 }
 
 .timer-box {
@@ -53,7 +57,9 @@ h1 {
 }
 
 
-/* Sudoku board */
+/* =========================
+   Sudoku Board
+   ========================= */
 
 #sudoku-board {
   width: min(90vw, 540px);
@@ -75,23 +81,23 @@ h1 {
   color: #222;
 }
 
-/* Alternating 3x3 Sudoku squares */
 
-.sudoku-cell:nth-child(-n+3),
-.sudoku-cell:nth-child(n+19):nth-child(-n+21),
-.sudoku-cell:nth-child(n+37):nth-child(-n+39),
-.sudoku-cell:nth-child(n+55):nth-child(-n+57) {
+/* =========================
+   Alternating 3x3 Boxes
+   ========================= */
+
+.box-light {
   background: #eef4ff;
 }
 
-.sudoku-cell:nth-child(n+10):nth-child(-n+12),
-.sudoku-cell:nth-child(n+28):nth-child(-n+30),
-.sudoku-cell:nth-child(n+46):nth-child(-n+48),
-.sudoku-cell:nth-child(n+64):nth-child(-n+66) {
-  background: #f7f7f7;
+.box-dark {
+  background: #ffffff;
 }
 
-/* Thick Sudoku borders */
+
+/* =========================
+   Thick Sudoku Borders
+   ========================= */
 
 .sudoku-cell:nth-child(3n) {
   border-right: 3px solid #333;
@@ -110,6 +116,11 @@ h1 {
   border-top: 0;
 }
 
+
+/* =========================
+   Special Cell States
+   ========================= */
+
 .prefilled {
   font-weight: bold;
   background: #ddd !important;
@@ -122,11 +133,14 @@ h1 {
 
 .incorrect {
   background: #ffd6d6 !important;
+  color: #b71c1c;
   border: 2px solid #d32f2f;
 }
 
 
-/* Buttons */
+/* =========================
+   Buttons
+   ========================= */
 
 .controls {
   display: flex;
@@ -142,6 +156,11 @@ button {
   padding: 11px 18px;
   font-size: 16px;
   cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+button:hover {
+  transform: translateY(-1px);
 }
 
 button:focus,
@@ -165,6 +184,15 @@ input:focus {
   color: white;
 }
 
+.secondary-button:hover {
+  background: #444;
+}
+
+
+/* =========================
+   Messages
+   ========================= */
+
 .message {
   min-height: 28px;
   text-align: center;
@@ -186,7 +214,9 @@ input:focus {
 }
 
 
-/* Leaderboard */
+/* =========================
+   Leaderboard
+   ========================= */
 
 .leaderboard {
   width: min(800px, 100%);
@@ -221,7 +251,9 @@ input:focus {
 }
 
 
-/* Dark mode */
+/* =========================
+   Dark Mode
+   ========================= */
 
 body.dark {
   background: #121212;
@@ -232,10 +264,23 @@ body.dark .subtitle {
   color: #bbb;
 }
 
-body.dark .sudoku-cell {
+body.dark .game-info select {
   background: #222;
   color: #fff;
   border-color: #555;
+}
+
+body.dark .sudoku-cell {
+  color: #fff;
+  border-color: #555;
+}
+
+body.dark .box-light {
+  background: #26344a;
+}
+
+body.dark .box-dark {
+  background: #222;
 }
 
 body.dark .prefilled {
@@ -249,6 +294,8 @@ body.dark .hinted {
 
 body.dark .incorrect {
   background: #5b1c1c !important;
+  color: #ffb3b3;
+  border-color: #ff6b6b;
 }
 
 body.dark .leaderboard table {
@@ -268,10 +315,21 @@ body.dark .secondary-button {
   color: #111;
 }
 
+body.dark .secondary-button:hover {
+  background: #fff;
+}
 
-/* Mobile */
+body.dark .message.info {
+  color: #8ab4f8;
+}
+
+
+/* =========================
+   Mobile
+   ========================= */
 
 @media (max-width: 600px) {
+
   .container {
     padding: 15px 8px 35px;
   }

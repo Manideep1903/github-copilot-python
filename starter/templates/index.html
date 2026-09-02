@@ -9,66 +9,129 @@
 
 <body>
   <main class="container">
+
     <header class="page-header">
       <div>
         <h1>Sudoku Game</h1>
-        <p class="subtitle">Challenge yourself and solve the puzzle!</p>
+        <p class="subtitle">
+          Challenge yourself and solve the puzzle!
+        </p>
       </div>
 
-      <button id="dark-mode" class="secondary-button" type="button"
-              aria-label="Toggle dark mode">
+      <button
+        id="dark-mode"
+        class="secondary-button"
+        type="button"
+        aria-label="Toggle dark mode">
         🌙 Dark Mode
       </button>
     </header>
 
-    <section class="game-info" aria-label="Game information">
+
+    <section
+      class="game-info"
+      aria-label="Game information">
+
       <div>
-        <label for="difficulty">Difficulty:</label>
-        <select id="difficulty" aria-label="Select difficulty">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
+        <label for="difficulty">
+          Difficulty:
+        </label>
+
+        <select
+          id="difficulty"
+          aria-label="Select difficulty">
+
+          <option value="easy">
+            Easy
+          </option>
+
+          <option
+            value="medium"
+            selected>
+            Medium
+          </option>
+
+          <option value="hard">
+            Hard
+          </option>
+
         </select>
       </div>
 
+
       <div class="timer-box">
-        ⏱️ Time: <strong id="timer">00:00</strong>
+        ⏱️ Time:
+        <strong id="timer">
+          00:00
+        </strong>
       </div>
+
 
       <div>
-        Hints: <strong id="hints-used">0</strong>
+        Hints:
+        <strong id="hints-used">
+          0
+        </strong>
       </div>
+
     </section>
+
 
     <section aria-label="Sudoku puzzle">
-      <div id="sudoku-board"
-           role="grid"
-           aria-label="Sudoku puzzle board"></div>
+
+      <div
+        id="sudoku-board"
+        role="grid"
+        aria-label="Sudoku puzzle board">
+      </div>
+
     </section>
 
+
     <div class="controls">
-      <button id="new-game" class="primary-button" type="button">
+
+      <button
+        id="new-game"
+        class="primary-button"
+        type="button">
         New Game
       </button>
 
-      <button id="check-solution" class="primary-button" type="button">
+      <button
+        id="check-solution"
+        class="primary-button"
+        type="button">
         Check Solution
       </button>
 
-      <button id="hint" class="secondary-button" type="button">
+      <button
+        id="hint"
+        class="secondary-button"
+        type="button">
         Hint
       </button>
+
     </div>
 
-    <div id="message"
-         class="message"
-         role="status"
-         aria-live="polite"></div>
 
-    <section class="leaderboard" aria-labelledby="leaderboard-title">
-      <h2 id="leaderboard-title">🏆 Top 10 Fastest Times</h2>
+    <div
+      id="message"
+      class="message"
+      role="status"
+      aria-live="polite">
+    </div>
+
+
+    <section
+      class="leaderboard"
+      aria-labelledby="leaderboard-title">
+
+      <h2 id="leaderboard-title">
+        🏆 Top 10 Fastest Times
+      </h2>
 
       <table>
+
         <thead>
           <tr>
             <th scope="col">Rank</th>
@@ -81,14 +144,18 @@
 
         <tbody id="leaderboard-body">
         </tbody>
+
       </table>
 
       <p id="empty-leaderboard">
         No completed games yet. Be the first!
       </p>
+
     </section>
+
   </main>
 
   <script src="/static/main.js"></script>
+
 </body>
 </html>
