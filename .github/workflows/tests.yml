@@ -23,6 +23,6 @@ jobs:
           python -m pip install -r starter/requirements.txt
           python -m pip install pytest
 
-      - - name: Run tests
-          working-directory: starter
-          run: python -m pytest
+      - name: Run tests
+        working-directory: starter
+        run: python -m pytest
