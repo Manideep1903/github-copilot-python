@@ -1,38 +1,60 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Sudoku Game</title>
+
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 
+
 <body>
+
   <main class="container">
 
+    <!-- =========================
+         Header
+         ========================= -->
+
     <header class="page-header">
+
       <div>
         <h1>Sudoku Game</h1>
+
         <p class="subtitle">
           Challenge yourself and solve the puzzle!
         </p>
       </div>
+
 
       <button
         id="dark-mode"
         class="secondary-button"
         type="button"
         aria-label="Toggle dark mode">
+
         🌙 Dark Mode
+
       </button>
+
     </header>
 
+
+
+    <!-- =========================
+         Game Information
+         ========================= -->
 
     <section
       class="game-info"
       aria-label="Game information">
 
-      <div>
+
+      <div class="difficulty-control">
+
         <label for="difficulty">
           Difficulty:
         </label>
@@ -45,9 +67,7 @@
             Easy
           </option>
 
-          <option
-            value="medium"
-            selected>
+          <option value="medium" selected>
             Medium
           </option>
 
@@ -56,37 +76,58 @@
           </option>
 
         </select>
+
       </div>
+
 
 
       <div class="timer-box">
+
         ⏱️ Time:
+
         <strong id="timer">
           00:00
         </strong>
+
       </div>
 
 
-      <div>
-        Hints:
+
+      <div class="hints-box">
+
+        💡 Hints:
+
         <strong id="hints-used">
           0
         </strong>
+
       </div>
 
     </section>
 
 
-    <section aria-label="Sudoku puzzle">
+
+    <!-- =========================
+         Sudoku Board
+         ========================= -->
+
+    <section
+      aria-label="Sudoku puzzle">
 
       <div
         id="sudoku-board"
         role="grid"
         aria-label="Sudoku puzzle board">
+
       </div>
 
     </section>
 
+
+
+    <!-- =========================
+         Controls
+         ========================= -->
 
     <div class="controls">
 
@@ -94,68 +135,124 @@
         id="new-game"
         class="primary-button"
         type="button">
+
         New Game
+
       </button>
+
 
       <button
         id="check-solution"
         class="primary-button"
         type="button">
+
         Check Solution
+
       </button>
+
 
       <button
         id="hint"
         class="secondary-button"
         type="button">
+
         Hint
+
       </button>
 
     </div>
 
+
+
+    <!-- =========================
+         Message
+         ========================= -->
 
     <div
       id="message"
       class="message"
       role="status"
       aria-live="polite">
+
     </div>
 
+
+
+    <!-- =========================
+         Leaderboard
+         ========================= -->
 
     <section
       class="leaderboard"
       aria-labelledby="leaderboard-title">
 
+
       <h2 id="leaderboard-title">
+
         🏆 Top 10 Fastest Times
+
       </h2>
 
-      <table>
 
-        <thead>
-          <tr>
-            <th scope="col">Rank</th>
-            <th scope="col">Player</th>
-            <th scope="col">Time</th>
-            <th scope="col">Difficulty</th>
-            <th scope="col">Hints</th>
-          </tr>
-        </thead>
 
-        <tbody id="leaderboard-body">
-        </tbody>
+      <div class="table-wrapper">
 
-      </table>
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th scope="col">
+                Rank
+              </th>
+
+              <th scope="col">
+                Player
+              </th>
+
+              <th scope="col">
+                Time
+              </th>
+
+              <th scope="col">
+                Difficulty
+              </th>
+
+              <th scope="col">
+                Hints
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="leaderboard-body">
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
 
       <p id="empty-leaderboard">
-        No completed games yet. Be the first!
+
+        No completed games yet.
+        Be the first!
+
       </p>
 
     </section>
 
   </main>
 
+
+
   <script src="/static/main.js"></script>
 
 </body>
+
 </html>
